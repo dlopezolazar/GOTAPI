@@ -14,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import py.una.pol.got.TestConfig;
 import py.una.pol.got.dao.HouseRepository;
 import py.una.pol.got.entity.House;
+import py.una.pol.got.exception.EmptyResultException;
 import py.una.pol.got.service.HouseService;
 import py.una.pol.got.service.HouseServiceImpl;
 
@@ -40,15 +41,37 @@ public class HouseControllerTest {
     }
 
     @Test
-    public void getAllHouses(){
+    public void getAllHouses_houseNoEmptyList_OK(){
 
+        //Arrange
         List<House> houseList = new ArrayList<>();
         houseList.add(new House(1, "Lannister"));
+        houseList.add(new House(2, "Stark"));
         ResponseEntity responseMock = new ResponseEntity<>(houseList, HttpStatus.OK);
 
+        //Action
         when(houseService.getAllHouse()).thenReturn(houseList);
         ResponseEntity response = houseController.getAllHouses();
 
+        //Assert
         assertThat(response.getStatusCode(), is(responseMock.getStatusCode()));
     }
+
+    @Test(expected = EmptyResultException.class)
+    public void getAllHouses_houseEmptyList_noContent(){
+
+        //Arrange
+        List<House> houseList = new ArrayList<>();
+        ResponseEntity responseMock = new ResponseEntity<>(houseList, HttpStatus.NO_CONTENT);
+
+        //Action
+        when(houseService.getAllHouse()).thenThrow(EmptyResultException.class);
+        ResponseEntity response = houseController.getAllHouses();
+
+        //Assert
+//        assertThat(response.getStatusCode(), is(responseMock.getStatusCode()));
+
+    }
+
+
 }

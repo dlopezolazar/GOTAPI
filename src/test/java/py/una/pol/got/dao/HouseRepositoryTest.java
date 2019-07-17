@@ -39,29 +39,49 @@ public class HouseRepositoryTest {
     }
 
     @Test
-    public void getAllHouse_Ok(){
+    public void getAllHouse_getAll_Ok(){
 
-//      Given
+//      Arrange
         List<House> houseList = new ArrayList<>();
         houseList.add(new House(1, "Lannister"));
 
-        when(jdbcTemplate.query(anyString(), Matchers.<BeanPropertyRowMapper<House>>any())).thenReturn(houseList);
-        List<House> retVal = houseRepository.getAllHouses();
+//      Act
+        when(jdbcTemplate.query(anyString(), Matchers.<BeanPropertyRowMapper<House>>any())).
+                thenReturn(houseList);
+        List<House> retornoEsperado = houseRepository.getAllHouses();
 
-        assertThat(houseList, is(retVal));
+//      Assert
+        assertThat(houseList, is(retornoEsperado));
 
     }
 
     @Test
-    public void getHouseById_Ok(){
+    public void getHouseById_ExistentId_ReturnAHouse(){
 
+//      Arrange
         int idHouse = 2;
-        House expected = new House(idHouse, "Lannister");
+        HouseStub stub = new HouseStub();
 
+//      Act
         when(jdbcTemplate.queryForObject(anyString(), anyObject(), Matchers.<BeanPropertyRowMapper<House>>any())).
-                thenReturn(expected);
+                thenReturn(stub.getHouse(idHouse));
         House returnVal = houseRepository.getHouseById(idHouse);
 
+//      Assert
         assertThat(idHouse, is(returnVal.getIdHouse()));
+    }
+
+    class HouseStub{
+
+        public House getHouse(Integer idHouse){
+            return new House(idHouse, "Lannister");
+        }
+
+        List<House> getHouseList(){
+            List<House> houseList = new ArrayList<>();
+            houseList.add(new House(1, "Lannister"));
+
+            return houseList;
+        }
     }
 }
